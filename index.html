@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🤖 Automated Call Trigger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: radial-gradient(circle, #1e3c72, #2a5298);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .call-container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      width: 360px;
+      text-align: center;
+      color: #fff;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      font-size: 1rem;
+      background-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    input::placeholder {
+      color: #ddd;
+    }
+
+    button {
+      background-color: #00c6ff;
+      border: none;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #007ab3;
+    }
+
+    .status {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #00ffba;
+      font-size: 1rem;
+    }
+
+    .loader {
+      margin: 1rem auto 0;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #00c6ff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .footer-note {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="call-container">
+    <h2>🤖 Auto Call Bot</h2>
+    <form id="callForm">
+      <input type="text" id="phoneNumber" placeholder="+91XXXXXXXXXX" required />
+      <button type="submit">📞 Initiate Call</button>
+    </form>
+    <div class="loader" id="loader"></div>
+    <div id="status" class="status"></div>
+    <div class="footer-note">Powered by Twilio • Made with ❤️ in Python</div>
+  </div>
+
+  <script>
+    const form = document.getElementById('callForm');
+    const statusDiv = document.getElementById('status');
+    const loader = document.getElementById('loader');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const number = document.getElementById('phoneNumber').value;
+
+      statusDiv.textContent = '';
+      loader.style.display = 'inline-block';
+
+      try {
+        const response = await fetch('/make-call', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number })
+        });
+
+        const data = await response.json();
+        loader.style.display = 'none';
+
+        if (data.success) {
+          statusDiv.textContent = '✅ Call initiated! SID: ' + data.sid;
+        } else {
+          statusDiv.textContent = '❌ Call failed: ' + data.error;
+        }
+      } catch (error) {
+        loader.style.display = 'none';
+        statusDiv.textContent = '❌ Error: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
